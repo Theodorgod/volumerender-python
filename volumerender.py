@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py as h5
 from scipy.interpolate import interpn
+from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
+import os
 
 """
 Create Your Own Volume Rendering (With Python)
@@ -50,11 +52,11 @@ def main():
     z = np.linspace(-Nz / 2, Nz / 2, Nz)
     points = (x, y, z)
 
-    # Create a single figure with subplots for all renderings
-    fig = plt.figure(figsize=(16, 12))
+    # Store images for GIF creation
+    images = []
     
     # Do Volume Rendering at Different Viewing Angles
-    Nangles = 10
+    Nangles = 50
     for i in range(Nangles):
         print("Rendering Scene " + str(i + 1) + " of " + str(Nangles) + ".\n")
 
@@ -81,21 +83,19 @@ def main():
             image[:, :, 2] = a * b + (1 - a) * image[:, :, 2]
 
         image = np.clip(image, 0.0, 1.0)
+        
+        # Store image and save as PNG
+        images.append((image * 255).astype(np.uint8))
+        plt.imsave(f"volumerender{i}.png", image)
 
-        # Plot Volume Rendering in subplot
-        ax = fig.add_subplot(3, 4, i + 1)
-        ax.imshow(image)
-        ax.axis("off")
-        ax.set_title(f"Angle {i}")
-
-    # Plot Simple Projection -- for Comparison
-    ax = fig.add_subplot(3, 4, 11)
-    ax.imshow(np.log(np.mean(datacube, 0)), cmap="viridis")
-    ax.axis("off")
-    ax.set_title("Projection")
-
-    plt.tight_layout()
-    plt.show()
+    # Create GIF from the rendered images
+    print("Creating GIF from rendered images...\n")
+    clip = ImageSequenceClip(images, fps=60)
+    clip.write_gif("volumerender.gif")
+    print("GIF saved as volumerender.gif\n")
+    
+    # Open the GIF with default viewer
+    os.startfile("volumerender.gif")
 
     return 0
 
