@@ -50,6 +50,9 @@ def main():
     z = np.linspace(-Nz / 2, Nz / 2, Nz)
     points = (x, y, z)
 
+    # Create a single figure with subplots for all renderings
+    fig = plt.figure(figsize=(16, 12))
+    
     # Do Volume Rendering at Different Viewing Angles
     Nangles = 10
     for i in range(Nangles):
@@ -79,26 +82,19 @@ def main():
 
         image = np.clip(image, 0.0, 1.0)
 
-        # Plot Volume Rendering
-        plt.figure(figsize=(4, 4), dpi=80)
-
-        plt.imshow(image)
-        plt.axis("off")
-
-        # Save figure
-        plt.savefig(
-            "volumerender" + str(i) + ".png", dpi=240, bbox_inches="tight", pad_inches=0
-        )
+        # Plot Volume Rendering in subplot
+        ax = fig.add_subplot(3, 4, i + 1)
+        ax.imshow(image)
+        ax.axis("off")
+        ax.set_title(f"Angle {i}")
 
     # Plot Simple Projection -- for Comparison
-    plt.figure(figsize=(4, 4), dpi=80)
+    ax = fig.add_subplot(3, 4, 11)
+    ax.imshow(np.log(np.mean(datacube, 0)), cmap="viridis")
+    ax.axis("off")
+    ax.set_title("Projection")
 
-    plt.imshow(np.log(np.mean(datacube, 0)), cmap="viridis")
-    plt.clim(-5, 5)
-    plt.axis("off")
-
-    # Save figure
-    plt.savefig("projection.png", dpi=240, bbox_inches="tight", pad_inches=0)
+    plt.tight_layout()
     plt.show()
 
     return 0
