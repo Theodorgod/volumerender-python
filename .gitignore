@@ -1,2 +1,6 @@
 *.png
 .venv
+volumerender_images_new.npy
+*.gif
+img
+data

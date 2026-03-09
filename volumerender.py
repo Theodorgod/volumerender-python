@@ -38,11 +38,13 @@ def transferFunction(x):
     return r, g, b, a
 
 
+# @profile
 def main():
     """Volume Rendering"""
 
     # Load Datacube
-    f = h5.File("datacube.hdf5", "r")
+    f = h5.File("data/datacube.hdf5", "r")
+    # f = h5.File("data_1024.hdf5", "r")
     datacube = np.array(f["density"])
 
     # Datacube Grid
@@ -56,7 +58,7 @@ def main():
     images = []
     
     # Do Volume Rendering at Different Viewing Angles
-    Nangles = 50
+    Nangles = 10
     for i in range(Nangles):
         print("Rendering Scene " + str(i + 1) + " of " + str(Nangles) + ".\n")
 
@@ -86,19 +88,27 @@ def main():
         
         # Store image and save as PNG
         images.append((image * 255).astype(np.uint8))
-        plt.imsave(f"volumerender{i}.png", image)
+        plt.imsave(f"img/render{i}_128.png", image)
 
     # Create GIF from the rendered images
-    print("Creating GIF from rendered images...\n")
-    clip = ImageSequenceClip(images, fps=60)
-    clip.write_gif("volumerender.gif")
-    print("GIF saved as volumerender.gif\n")
+    # print("Creating GIF from rendered images...\n")
+    # clip = ImageSequenceClip(images, fps=60)
+    # clip.write_gif("img/render_1024.gif")
+    # print("GIF saved as test.gif\n")
     
     # Open the GIF with default viewer
-    os.startfile("volumerender.gif")
+    images_array = np.array(images)
+    if os.path.exists("volumerender_images_new.npy"):
+        os.remove("volumerender_images_new.npy")
+    np.save("volumerender_images_new.npy", images_array)
+
 
     return 0
 
 
 if __name__ == "__main__":
     main()
+    old = np.load("volumerender_images_old.npy")
+    new = np.load("volumerender_images_new.npy")
+
+    print(np.array_equal(old, new))
